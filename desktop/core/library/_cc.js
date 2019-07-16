@@ -7,6 +7,7 @@ export default function OperatorCC (orca, x, y) {
 
   this.name = 'cc'
   this.info = 'Sends MIDI control change'
+
   this.ports.channel = { x: 1, y: 0, clamp: { min: 0, max: 15 } }
   this.ports.knob = { x: 2, y: 0, clamp: { min: 0 } }
   this.ports.value = { x: 3, y: 0, clamp: { min: 0 } }
@@ -21,9 +22,8 @@ export default function OperatorCC (orca, x, y) {
     const rawValue = this.listen(this.ports.value, true)
     const value = Math.ceil((127 * rawValue) / 35)
 
-    terminal.io.cc.stack.push({ channel, knob, value, type: 'cc' })
-
     this.draw = false
+    terminal.io.cc.send(channel, knob, value)
 
     if (force === true) {
       terminal.io.cc.run()

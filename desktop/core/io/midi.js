@@ -4,7 +4,6 @@ import transpose from '../transpose.js'
 
 export default function Midi (terminal) {
   this.mode = 0
-  this.isClock = false
 
   this.outputIndex = -1
   this.inputIndex = -1
@@ -43,6 +42,8 @@ export default function Midi (terminal) {
     const transposed = this.transpose(item.note, item.octave)
     const channel = terminal.orca.valueOf(item.channel)
 
+    console.log(transposed);
+
     if (!transposed) { return }
 
     const c = down === true ? 0x90 + channel : 0x80 + channel
@@ -50,6 +51,7 @@ export default function Midi (terminal) {
     const v = parseInt((item.velocity / 16) * 127)
 
     if (!n || c === 127) { return }
+
 
     this.outputDevice().send([c, n, v])
   }
@@ -82,34 +84,32 @@ export default function Midi (terminal) {
   }
 
   this.update = function () {
-    terminal.controller.clearCat('default', 'Midi')
-    // terminal.controller.add('default', 'Midi', `MIDI Send Clock ${this.isClock === true ? ' — On' : ' — Off'}`, () => { this.toggleClock(); this.update() }, '')
-
-    terminal.controller.add('default', 'Midi', `Refresh Device List`, () => { terminal.io.midi.setup(); terminal.io.midi.update() })
-    terminal.controller.addSpacer('default', 'Midi', 'spacer1')
+    // terminal.controller.clearCat('default', 'Midi')
+    // terminal.controller.add('default', 'Midi', `Refresh Device List`, () => { terminal.io.midi.setup(); terminal.io.midi.update() })
+    // terminal.controller.addSpacer('default', 'Midi', 'spacer1')
 
     // Outputs
     if (this.outputs.length < 1) {
-      terminal.controller.add('default', 'Midi', `No Midi Outputs`)
+      // terminal.controller.add('default', 'Midi', `No Midi Outputs`)
     } else {
       for (const id in this.outputs) {
-        terminal.controller.add('default', 'Midi', `${this.outputs[id].name} Output ${terminal.io.midi.outputIndex === parseInt(id) ? ' — Active' : ''}`, () => { terminal.io.midi.selectOutput(id) }, '')
+//        terminal.controller.add('default', 'Midi', `${this.outputs[id].name} Output ${terminal.io.midi.outputIndex === parseInt(id) ? ' — Active' : ''}`, () => { terminal.io.midi.selectOutput(id) }, '')
       }
-      terminal.controller.add('default', 'Midi', `No Output ${terminal.io.midi.outputIndex === -1 ? ' — Active' : ''}`, () => { terminal.io.midi.selectOutput(-1) }, '')
-      terminal.controller.addSpacer('default', 'Midi', 'spacer2')
+//      terminal.controller.add('default', 'Midi', `No Output ${terminal.io.midi.outputIndex === -1 ? ' — Active' : ''}`, () => { terminal.io.midi.selectOutput(-1) }, '')
+//      terminal.controller.addSpacer('default', 'Midi', 'spacer2')
     }
 
     // Inputs
     if (this.inputs.length < 1) {
-      terminal.controller.add('default', 'Midi', `No Midi Inputs`)
+  //    terminal.controller.add('default', 'Midi', `No Midi Inputs`)
     } else {
       for (const id in this.inputs) {
-        terminal.controller.add('default', 'Midi', `${this.inputs[id].name} Input ${terminal.io.midi.inputIndex === parseInt(id) ? ' — Active' : ''}`, () => { terminal.io.midi.selectInput(id) }, '')
+    //    terminal.controller.add('default', 'Midi', `${this.inputs[id].name} Input ${terminal.io.midi.inputIndex === parseInt(id) ? ' — Active' : ''}`, () => { terminal.io.midi.selectInput(id) }, '')
       }
-      terminal.controller.add('default', 'Midi', `No Input ${terminal.io.midi.inputIndex === -1 ? ' — Active' : ''}`, () => { terminal.io.midi.selectInput(-1) }, '')
+    //  terminal.controller.add('default', 'Midi', `No Input ${terminal.io.midi.inputIndex === -1 ? ' — Active' : ''}`, () => { terminal.io.midi.selectInput(-1) }, '')
     }
 
-    terminal.controller.commit()
+    //terminal.controller.commit()
   }
 
   // Keys
@@ -122,32 +122,14 @@ export default function Midi (terminal) {
     this.keys[channel] = null
   }
 
-  this.allNotesOff = function () {
-  	if (!this.outputDevice()) { return }
-  	console.log('Midi', 'All Notes Off')
-  	for (let chan = 0; chan < 16; chan++) {
-      this.outputDevice().send([0xB0 + chan, 123, 0])
-    }
-  }
-
   // Clock
 
   this.ticks = []
 
-  this.toggleClock = function () {
-    switch (this.isClock) {
-      case true:
-        this.isClock = false
-        break
-      case false:
-        this.isClock = true
-        break
-    }
-  }
   // TODO
   this.sendClock = function () {
     if (!this.outputDevice()) { return }
-    if (this.isClock !== true) { return }
+    if (this.sendClock !== true) { return }
 
     const bpm = terminal.clock.speed.value
     const frameTime = (60000 / bpm) / 4
@@ -156,7 +138,6 @@ export default function Midi (terminal) {
     for (let id = 0; id < 6; id++) {
       if (this.ticks[id]) { clearTimeout(this.ticks[id]) }
       this.ticks[id] = setTimeout(() => { this.outputDevice().send([0xF8], 0) }, parseInt(id) * frameFrag)
-      console.log('Midi', 'send ticks:')
     }
   }
 
@@ -171,25 +152,17 @@ export default function Midi (terminal) {
       return
     }
 
-    // listen for clock all the time
-    // check for clock in?
-    if (msg.data[0] === 0xF8) { terminal.clock.tap() }
-
     switch (msg.data[0]) {
       // Clock
-      // case 0xF8:
-      //  terminal.clock.tap()
-      //  break
-      case 0xFA:
-        console.log('Midi', 'Start msg.')
-        terminal.clock.play()
+      case 0xF8:
+        terminal.clock.tap()
         break
-      case 0xFB:
-        console.log('Midi', 'Continue msg.')
+      case 0xFA:
+        console.log('Midi', 'Clock start.')
         terminal.clock.play()
         break
       case 0xFC:
-        console.log('Midi', 'Stop msg.')
+        console.log('Midi', 'Clock stop.')
         terminal.clock.stop()
         break
     }
@@ -203,6 +176,11 @@ export default function Midi (terminal) {
 
     this.outputIndex = parseInt(id)
     console.log('Midi', `Select Output Device: ${this.outputDevice().name}`)
+
+    //this.press({note: 'A', octave: 3, velocity: 16, channel: 1});
+
+    //this.release({note: 'A', octave: 3, velocity: 16, channel: 1});
+
     this.update()
   }
 

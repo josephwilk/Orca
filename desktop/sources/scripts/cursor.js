@@ -1,7 +1,5 @@
 'use strict'
 
-const { clipboard } = require('electron')
-
 export default function Cursor (terminal) {
   this.x = 0
   this.y = 0
@@ -85,7 +83,7 @@ export default function Cursor (terminal) {
     for (var i = 0; i < block.length; i++) {
       rows.push(block[i].join(''))
     }
-    clipboard.writeText(rows.join('\n'))
+    //clipboard.writeText(rows.join('\n'))
   }
 
   this.cut = function () {
@@ -94,7 +92,7 @@ export default function Cursor (terminal) {
   }
 
   this.paste = function (overlap = false) {
-    this.writeBlock(clipboard.readText().split(/\r?\n/), overlap)
+    //this.writeBlock(clipboard.readText().split(/\r?\n/), overlap)
   }
 
   this.read = function () {

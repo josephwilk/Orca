@@ -20,8 +20,6 @@ export default function Commander (terminal) {
     'osc': (p) => { terminal.io.osc.select(p.int) },
     'udp': (p) => { terminal.io.udp.select(p.int) },
     'ip': (p) => { terminal.io.setIp(p.str) },
-    'cc': (p) => { terminal.io.cc.setOffset(p.int) },
-    'pg': (p) => { terminal.io.cc.stack.push({ channel: clamp(p.ints[0], 0, 15), bank: p.ints[1], sub: p.ints[2], pgm: clamp(p.ints[3], 0, 127), type: 'pg' }); terminal.io.cc.run() },
     // Cursor
     'copy': (p) => { terminal.cursor.copy() },
     'paste': (p) => { terminal.cursor.paste(true) },
@@ -40,7 +38,7 @@ export default function Commander (terminal) {
     'rot': (p) => { terminal.cursor.rotate(p.int) },
     // Themeing
     'color': (p) => { terminal.theme.set('b_med', p.parts[0]); terminal.theme.set('b_inv', p.parts[1]); terminal.theme.set('b_high', p.parts[2]) },
-    'graphic': (p) => { terminal.theme.setImage(terminal.source.locate(p.parts[0] + '.' + (p.parts[1] ? p.parts[1] : 'jpg'))) },
+    'graphic': (p) => { terminal.theme.setImage(terminal.source.locate(p.str + '.jpg')) },
     // Edit
     'find': (p) => { terminal.cursor.find(p.str) },
     'select': (p) => { terminal.cursor.select(p.x, p.y, p.w, p.h) },
@@ -59,7 +57,6 @@ export default function Commander (terminal) {
     this.chars = this.str.split('')
     this.int = !isNaN(val) ? parseInt(val) : null
     this.parts = val.split(';')
-    this.ints = this.parts.map((val) => { return parseInt(val) })
     this.x = parseInt(this.parts[0])
     this.y = parseInt(this.parts[1])
     this.w = parseInt(this.parts[2])
@@ -246,8 +243,4 @@ export default function Commander (terminal) {
   this.toString = function () {
     return `${this.query}`
   }
-
-  // Utils
-
-  function clamp (v, min, max) { return v < min ? min : v > max ? max : v }
 }

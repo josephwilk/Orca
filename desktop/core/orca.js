@@ -18,6 +18,7 @@ export default function Orca (terminal) {
   this.run = function () {
     this.runtime = this.parse()
     this.operate(this.runtime)
+    //console.log(this.s);
     this.f += 1
   }
 
@@ -32,7 +33,9 @@ export default function Orca (terminal) {
     this.w = w
     this.h = h
     this.f = f
+    console.log(this.s);
     this.replace(this.clean(s))
+    console.log(this.s);
     return this
   }
 

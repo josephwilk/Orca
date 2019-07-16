@@ -2,7 +2,6 @@
 
 export default function MidiCC (terminal) {
   this.stack = []
-  this.offset = 64
 
   this.start = function () {
     console.info('MidiCC', 'Starting..')
@@ -13,52 +12,18 @@ export default function MidiCC (terminal) {
   }
 
   this.run = function () {
-    if (this.stack.length < 1) { return }
+    for (const id in this.stack) {
+      this.play(this.stack[id])
+    }
+  }
+
+  this.send = function (channel, knob, value) {
+    this.stack.push([channel, knob, value])
+  }
+
+  this.play = function (data) {
     const device = terminal.io.midi.outputDevice()
     if (!device) { console.warn('MidiCC', `No Midi device.`); return }
-    for (const id in this.stack) {
-      const msg = this.stack[id]
-      if (msg.type === 'cc') {
-        this.sendCC(device, msg)
-      } else if (msg.type === 'pb') {
-        this.sendPB(device, msg)
-      } else if (msg.type === 'pg') {
-        this.sendPG(device, msg)
-      } else {
-        console.warn('Unknown message type')
-      }
-    }
-  }
-
-  this.setOffset = function (offset) {
-    if (isNaN(offset)) { return }
-    this.offset = offset
-    console.log('MidiCC', 'Set offset to ' + this.offset)
-  }
-
-  this.sendCC = function (device, msg) {
-    if (!device) { console.log('No device'); return }
-    if (isNaN(msg.channel)) { console.log('No channel'); return }
-    device.send([0xb0 + msg.channel, this.offset + msg.knob, msg.value])
-  }
-
-  this.sendPB = function (device, msg) {
-    if (!device) { console.log('No device'); return }
-    if (isNaN(msg.channel)) { console.log('No channel'); return }
-    device.send([0xe0 + msg.channel, msg.lsb, msg.msb])
-  }
-
-  this.sendPG = function (device, msg) {
-    if (!device) { console.log('No device'); return }
-    if (isNaN(msg.channel)) { console.log('No channel'); return }
-  	if (!isNaN(msg.bank)) {
-  		device.send([0xb0 + msg.channel, 0, msg.bank])
-  	}
-    if (!isNaN(msg.sub)) {
-    	device.send([0xb0 + msg.channel, 32, msg.sub])
-    }
-    if (!isNaN(msg.pgm)) {
-	    device.send([0xc0 + msg.channel, msg.pgm ])
-    }
+    device.send([0xb0 + data[0], 64 + data[1], data[2]])
   }
 }
