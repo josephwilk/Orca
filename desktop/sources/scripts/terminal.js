@@ -71,7 +71,7 @@ export default function Terminal () {
     //if (document.hidden === true) { return }
     this.clear()
     //this.ports = this.findPorts()
-    this.drawProgram()
+    //this.drawProgram()
     //this.drawInterface()
     //this.drawGuide()
   }
