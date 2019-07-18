@@ -59,7 +59,7 @@ export default function Terminal () {
   }
 
   this.run = function () {
-    this.io.clear()
+    //this.io.clear()
     this.clock.run()
     // this.source.run()
     this.orca.run()
@@ -69,7 +69,7 @@ export default function Terminal () {
 
   this.update = function () {
     //if (document.hidden === true) { return }
-    this.clear()
+    //this.clear()
     //this.ports = this.findPorts()
     //this.drawProgram()
     //this.drawInterface()
