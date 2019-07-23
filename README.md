@@ -1,5 +1,11 @@
 # ORCΛ
 
+### Adapted to work with Screenreaders 
+### Running in the Browser
+### Focus on midi
+
+Live: http://blog.josephwilk.net/Orca/
+
 <img src='https://raw.githubusercontent.com/hundredrabbits/Orca/master/resources/logo.png?v=1' width="600"/>
 
 **Each letter of the alphabet is an operation**, <br />lowercase letters operate on bang, uppercase letters operate each frame. 
